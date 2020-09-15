@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zk.cloudalibaba.mapper.AccountMapper">
+  <resultMap id="BaseResultMap" type="com.zk.cloudalibaba.entities.Account">
+    <result column="id" jdbcType="INTEGER" property="id" />
+    <result column="account__number" jdbcType="VARCHAR" property="accountNumber" />
+    <result column="use_id" jdbcType="INTEGER" property="useId" />
+  </resultMap>
+  <insert id="insert" parameterType="com.zk.cloudalibaba.entities.Account">
+    insert into account_info (id, account__number, use_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{accountNumber,jdbcType=VARCHAR}, #{useId,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.zk.cloudalibaba.entities.Account">
+    insert into account_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="accountNumber != null">
+        account__number,
+      </if>
+      <if test="useId != null">
+        use_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="accountNumber != null">
+        #{accountNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="useId != null">
+        #{useId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+</mapper>

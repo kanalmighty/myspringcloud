@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zk.cloudalibaba.mapper.AccountMapper">
+  <resultMap id="BaseResultMap" type="com.zk.cloudalibaba.entities.Account">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="account__number" jdbcType="VARCHAR" property="accountNumber" />
+    <result column="use_id" jdbcType="INTEGER" property="useId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, account__number, use_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from account_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from account_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.zk.cloudalibaba.entities.Account">
+    insert into account_info (id, account__number, use_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{accountNumber,jdbcType=VARCHAR}, #{useId,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.zk.cloudalibaba.entities.Account">
+    insert into account_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="accountNumber != null">
+        account__number,
+      </if>
+      <if test="useId != null">
+        use_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="accountNumber != null">
+        #{accountNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="useId != null">
+        #{useId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zk.cloudalibaba.entities.Account">
+    update account_info
+    <set>
+      <if test="accountNumber != null">
+        account__number = #{accountNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="useId != null">
+        use_id = #{useId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zk.cloudalibaba.entities.Account">
+    update account_info
+    set account__number = #{accountNumber,jdbcType=VARCHAR},
+      use_id = #{useId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
