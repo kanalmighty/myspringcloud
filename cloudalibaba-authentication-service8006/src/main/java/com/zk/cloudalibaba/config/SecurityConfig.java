@@ -1,9 +1,11 @@
 package com.zk.cloudalibaba.config;
 
 import com.sun.javaws.security.JavaWebStartSecurity;
+import com.zk.cloudalibaba.auth.AuthUserDetails;
 import com.zk.cloudalibaba.auth.ExpireSessionStrategy;
 import com.zk.cloudalibaba.auth.FailureAuthenticationHandler;
 import com.zk.cloudalibaba.auth.SuccessAuthenticationHandler;
+import com.zk.cloudalibaba.service.AuthUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -26,6 +28,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private ExpireSessionStrategy expireSessionStrategy;
     @Resource
     private com.zk.cloudalibaba.auth.FailureAuthenticationHandler failureAuthenticationHandler;
+
+    @Resource
+    private AuthUserDetailsService userDetailsService;
     @Override
     //重写方法
     protected void configure(HttpSecurity security) throws Exception {
@@ -42,8 +47,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/login.html","/login").permitAll()//这两个资源对所有请求开放
                 .antMatchers("/biz1", "/biz2")
                 .hasAnyAuthority("ROLE_user","ROLE_admin")//以上两个资源必须有user和admin权限可以访问
-                .antMatchers("/syslog", "/sysuser")
-                .hasAnyAuthority("sys:log")
+                .antMatchers("/syslog")//资源路径
+                .hasAuthority("/syslog")//资源标识
+                .antMatchers("/sysuser")
+                .hasAuthority("/sysuser")
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
@@ -59,16 +66,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //配置用户权限角色信息
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("user")
-                .password(passwordEncoder().encode("12345"))
-                .roles("user")
-                    .and()
-                .withUser("admin")
-                .password(passwordEncoder().encode("12345"))
-                .roles("admin")
-                    .and()
-                .passwordEncoder(passwordEncoder());
+//        auth.inMemoryAuthentication()
+//                .withUser("user")
+//                .password(passwordEncoder().encode("12345"))
+//                .roles("user")
+//                    .and()
+//                .withUser("admin")
+//                .password(passwordEncoder().encode("12345"))
+//                .roles("admin")
+//                    .and()
+//                .passwordEncoder(passwordEncoder());
+
+        //从数据库中动态加载用户信息
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
 
     //对用户密码进行加密

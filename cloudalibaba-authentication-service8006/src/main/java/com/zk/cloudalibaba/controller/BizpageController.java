@@ -29,7 +29,7 @@ public class BizpageController {
     // 用户管理
     @GetMapping("/sysuser")
     public String addOrder() {
-        return "sysuser";
+        return "sysuser.html";
     }
 
     // 具体业务一
