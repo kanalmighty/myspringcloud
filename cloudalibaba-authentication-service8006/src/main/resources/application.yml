@@ -23,7 +23,7 @@ spring:
     charset: UTF-8 # 文件编码
     template-loader-path: classpath:/templates/
   security:
-    loginType: JSON
+    loginType: html
     user:
       name: admin
       password: admin
