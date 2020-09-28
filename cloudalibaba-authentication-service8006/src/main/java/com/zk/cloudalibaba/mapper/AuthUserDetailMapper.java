@@ -29,4 +29,13 @@ public interface AuthUserDetailMapper {
             "where r.role_name in \n" +
             "<foreach collection='roleIds' item='roleId' open='(' separator=',' close=')'>#{roleId}</foreach></script>")
     List<String> getAuthByRoleId(@Param("roleIds") List<String> roleIds);
+
+    //通过用户名去查找用户权限
+    @Select("select m.url from menu_info m \n" +
+            "left join role_menu_relation rm on m.id = rm.menu_id \n" +
+            "left join role_info r on r.id = rm.role_id \n" +
+            "left join user_role_relation ur\n" +
+            "on r.id = ur.user_id left join user_info u \n" +
+            "where u.name= #{name};")
+    List<String> getAuthByUserName(String name);
 }

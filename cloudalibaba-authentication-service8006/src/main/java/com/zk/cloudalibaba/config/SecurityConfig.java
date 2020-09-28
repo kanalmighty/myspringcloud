@@ -45,13 +45,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/login.html","/login").permitAll()//这两个资源对所有请求开放
-                .antMatchers("/biz1", "/biz2")
-                .hasAnyAuthority("ROLE_user","ROLE_admin")//以上两个资源必须有user和admin权限可以访问
-                .antMatchers("/syslog")//资源路径
-                .hasAuthority("/syslog")//资源标识
-                .antMatchers("/sysuser")
-                .hasAuthority("/sysuser")
-                .anyRequest().authenticated()
+                .antMatchers("/index").authenticated()//index只要认证了都可以访问
+                .anyRequest().access("@AuthRuleService.hasPermission(request,authentication)")//其他请求都要用hasPermission方法判断一下
+//                .antMatchers("/biz1", "/biz2")
+//                .hasAnyAuthority("ROLE_user","ROLE_admin")//以上两个资源必须有user和admin权限可以访问
+//                .antMatchers("/syslog")//资源路径
+//                .hasAuthority("/syslog")//资源标识
+//                .antMatchers("/sysuser")
+//                .hasAuthority("/sysuser")
+//                .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
