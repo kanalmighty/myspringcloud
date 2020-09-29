@@ -5,9 +5,12 @@ import com.zk.cloudalibaba.auth.AuthUserDetails;
 import com.zk.cloudalibaba.auth.ExpireSessionStrategy;
 import com.zk.cloudalibaba.auth.FailureAuthenticationHandler;
 import com.zk.cloudalibaba.auth.SuccessAuthenticationHandler;
+import com.zk.cloudalibaba.auth.jwt.AuthJwtTokenFilter;
+import com.zk.cloudalibaba.service.AuthRuleService;
 import com.zk.cloudalibaba.service.AuthUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -15,6 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.annotation.Resource;
 
@@ -27,26 +31,33 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Resource
     private ExpireSessionStrategy expireSessionStrategy;
     @Resource
+    AuthRuleService authRuleService;
+    @Resource
     private com.zk.cloudalibaba.auth.FailureAuthenticationHandler failureAuthenticationHandler;
 
     @Resource
     private AuthUserDetailsService userDetailsService;
+
+    @Resource
+    private AuthJwtTokenFilter authJwtTokenFilter;
     @Override
     //重写方法
     protected void configure(HttpSecurity security) throws Exception {
         security.csrf().disable()//接触跨站攻击防御
-                .formLogin()
-                .loginPage("/login.html")//登录页面
-                .loginProcessingUrl("/login")//登录url
+//                .formLogin()
+//                .loginPage("/login.html")//登录页面
+//                .loginProcessingUrl("/login")//登录url
 //                .defaultSuccessUrl("/index.html")//登录以后跳转页面
-                .successHandler(successAuthenticationHandler)
+//                .successHandler(successAuthenticationHandler)
 //                .failureUrl("/login.html")
-                .failureHandler(failureAuthenticationHandler)
-                .and()
+//                .failureHandler(failureAuthenticationHandler)
+//                .and()
+                //一定要放到UsernamePasswordAuthenticationFilter前执行，表示走了前面的filter后面的filter就不用执行了
+                .addFilterBefore(authJwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
-                .antMatchers("/login.html","/login").permitAll()//这两个资源对所有请求开放
+                .antMatchers("/login.html","/login","/authentication", "refresh").permitAll()//这两个资源对所有请求开放
                 .antMatchers("/index").authenticated()//index只要认证了都可以访问
-                .anyRequest().access("@AuthRuleService.hasPermission(request,authentication)")//其他请求都要用hasPermission方法判断一下
+                .anyRequest().access("@authRuleService.hasPermission(request,authentication)")//其他请求都要用hasPermission方法判断一下
 //                .antMatchers("/biz1", "/biz2")
 //                .hasAnyAuthority("ROLE_user","ROLE_admin")//以上两个资源必须有user和admin权限可以访问
 //                .antMatchers("/syslog")//资源路径
@@ -56,7 +67,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                //改为无状态的session,就是开发过程冲不需要使用session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .invalidSessionUrl("/login.html")//session超时跳转的url
                 .sessionFixation().migrateSession()//重新登录以后，创新新的session,复制旧session的属性到新session,旧的将无效
                 .maximumSessions(1)//最大session数量为1
@@ -93,5 +106,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers("/css/*","/image/*");//静态资源不做权限控制
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 }

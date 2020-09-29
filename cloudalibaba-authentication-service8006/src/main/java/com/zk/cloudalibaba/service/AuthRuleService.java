@@ -20,14 +20,13 @@ public class AuthRuleService {
     
     //判断某用户是否具有该request资源的访问权限
     
-    public boolean hasPermisstion(HttpServletRequest request, Authentication authentication){
+    public boolean hasPermission(HttpServletRequest request, Authentication authentication){
         Object principal = authentication.getPrincipal();
         
         if(principal instanceof UserDetails){
             String username = ((UserDetails) principal).getUsername();
             //获取用户可访问的uri
             List<String> auth = mapper.getAuthByUserName(username);
-            String requestURI = request.getRequestURI();
 
             //判断获取用户可访问的uri中是否匹配用户请求的url
             return auth.stream().anyMatch(

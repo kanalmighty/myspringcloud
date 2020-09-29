@@ -35,7 +35,7 @@ public interface AuthUserDetailMapper {
             "left join role_menu_relation rm on m.id = rm.menu_id \n" +
             "left join role_info r on r.id = rm.role_id \n" +
             "left join user_role_relation ur\n" +
-            "on r.id = ur.user_id left join user_info u \n" +
+            "on r.id = ur.user_id left join user_info u on ur.user_id =  u.id  \n" +
             "where u.name= #{name};")
     List<String> getAuthByUserName(String name);
 }
